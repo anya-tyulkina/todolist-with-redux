@@ -26,12 +26,10 @@ export const TaskItem = ({ task, todolistId }: Props) => {
 
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
     const status = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
-    // const newTask = {...task, status}
     dispatch(updateTaskTC({ todolistId, taskId: task.id, domainModel: { status } }))
   }
 
   const changeTaskTitle = (title: string) => {
-    // const newTask = {...task, title}
     dispatch(updateTaskTC({ todolistId, taskId: task.id, domainModel: { title } }))
   }
 

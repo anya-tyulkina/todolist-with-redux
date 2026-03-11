@@ -1,4 +1,3 @@
-import { nanoid } from "@reduxjs/toolkit"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import { createAppSlice } from "@/common/utils/createAppSlice.ts"
@@ -81,23 +80,16 @@ export const todolistsSlice = createAppSlice({
       async (arg: { title: string }, { rejectWithValue, dispatch }) => {
         try {
           dispatch(changeStatusAC({ status: "pending" }))
-          const newTodolist: DomainTodolist = {
-            addedDate: "",
-            order: 0,
-            filter: "all",
-            title: arg.title,
-            id: nanoid(),
-          }
-          await todolistsApi.createTodolist(arg.title)
+          const res = await todolistsApi.createTodolist(arg.title)
           dispatch(changeStatusAC({ status: "succeeded" }))
-          return newTodolist
+          return {todolist: res.data.data.item}
         } catch (error) {
           return rejectWithValue(error)
         }
       },
       {
         fulfilled: (state, action) => {
-          state.unshift(action.payload)
+          state.unshift({...action.payload.todolist, filter : 'all'})
         }
       }
     ),
