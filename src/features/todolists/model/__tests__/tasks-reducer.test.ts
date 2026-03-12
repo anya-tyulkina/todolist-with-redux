@@ -196,7 +196,7 @@ test("correct task should change its status", () => {
   }
 
   const action = {
-    type: tasksSlice.actions.changeTaskStatusTC.fulfilled.type,
+    type: tasksSlice.actions.updateTaskTC.fulfilled.type,
     payload: { task: newTask },
   }
   const endState = tasksSlice.reducer(startState, action)
@@ -213,7 +213,7 @@ test("correct task should change its title", () => {
     todoListId: 'todolistId2'
   }
   const action = {
-    type: tasksSlice.actions.changeTaskTitleTC.fulfilled.type,
+    type: tasksSlice.actions.updateTaskTC.fulfilled.type,
     payload: {task: newTask },
   }
   const endState = tasksSlice.reducer(
