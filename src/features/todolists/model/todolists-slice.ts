@@ -41,11 +41,17 @@ export const todolistsSlice = createAppSlice({
       async (arg: { id: string; title: string }, { rejectWithValue, dispatch }) => {
         try {
           dispatch(changeStatusAC({ status: "pending" }))
-          await todolistsApi.changeTodolistTitle(arg)
-          dispatch(changeStatusAC({ status: "succeeded" }))
-          return arg
+          const res = await todolistsApi.changeTodolistTitle(arg)
+          if (res.data.resultCode === ResultCode.Success){
+            dispatch(changeStatusAC({ status: "succeeded" }))
+            return arg
+          } else {
+            handleStatusCodeError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
-          return rejectWithValue(error)
+          handleCatchError(error, dispatch)
+          return rejectWithValue(null)
         }
       },
       {
@@ -63,11 +69,17 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           dispatch(changeTodolistEntityStatusAC({ id: arg.id, status: "pending" }))
-          await todolistsApi.deleteTodolist(arg.id)
-          dispatch(changeStatusAC({ status: "succeeded" }))
-          return arg
+          const res = await todolistsApi.deleteTodolist('arg.id')
+          if(res.data.resultCode === ResultCode.Success){
+            dispatch(changeStatusAC({ status: "succeeded" }))
+            return arg
+          } else {
+            handleStatusCodeError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
-          return rejectWithValue(error)
+          handleCatchError(error, dispatch)
+          return rejectWithValue(null)
         } finally {
           dispatch(changeTodolistEntityStatusAC({ id: arg.id, status: "failed" }))
         }

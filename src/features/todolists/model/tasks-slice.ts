@@ -57,11 +57,17 @@ export const tasksSlice = createAppSlice({
       async (args: { todolistId: string; taskId: string }, { rejectWithValue, dispatch }) => {
         try {
           dispatch(changeStatusAC({ status: "pending" }))
-          await tasksApi.deleteTask(args)
-          dispatch(changeStatusAC({ status: "succeeded" }))
-          return args
+          const res = await tasksApi.deleteTask(args)
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(changeStatusAC({ status: "succeeded" }))
+            return args
+          } else {
+            handleStatusCodeError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
-          return rejectWithValue(error)
+          handleCatchError(error, dispatch)
+          return rejectWithValue(null)
         }
       },
       {
@@ -74,55 +80,6 @@ export const tasksSlice = createAppSlice({
         },
       },
     ),
-    // changeTaskStatusTC: create.asyncThunk(
-    //   async (task: DomainTask, { rejectWithValue }) => {
-    //     try {
-    //       const res = await tasksApi.updateTask(task)
-    //       return { task: res.data.data.item }
-    //     } catch (error) {
-    //       return rejectWithValue(error)
-    //     }
-    //   },
-    //   {
-    //     fulfilled: (state, action) => {
-    //       const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
-    //       if (task) {
-    //         task.status = action.payload.task.status
-    //       }
-    //     },
-    //   },
-    // ),
-    // changeTaskTitleTC: create.asyncThunk(
-    //   async (task: DomainTask, { rejectWithValue }) => {
-    //     try {
-    //       // const state = getState() as RootState
-    //       // const allState = state.tasks
-    //       // const tasksForTodolist = allState[args.todolistId].find((el) => el.id === args.taskId)
-    //       //
-    //       // if (!tasksForTodolist) {
-    //       //   return rejectWithValue("not task")
-    //       // }
-    //       //
-    //       // const model: UpdateTaskModel = {
-    //       //   ...tasksForTodolist,
-    //       //   status: args.status,
-    //       // }
-    //
-    //       const res = await tasksApi.updateTask(task)
-    //       return { task: res.data.data.item }
-    //     } catch (error) {
-    //       return rejectWithValue(error)
-    //     }
-    //   },
-    //   {
-    //     fulfilled: (state, action) => {
-    //       const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
-    //       if (task) {
-    //         task.title = action.payload.task.title
-    //       }
-    //     },
-    //   },
-    // ),
     updateTaskTC: create.asyncThunk(
       async (
         payload: { todolistId: string; taskId: string; domainModel: Partial<UpdateTaskModel> },
@@ -138,10 +95,16 @@ export const tasksSlice = createAppSlice({
 
           const model: DomainTask = { ...task, ...payload.domainModel }
           const res = await tasksApi.updateTask({ model, todolistId: payload.todolistId, id: payload.taskId })
-          dispatch(changeStatusAC({ status: "succeeded" }))
-          return { task: res.data.data.item }
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(changeStatusAC({ status: "succeeded" }))
+            return { task: res.data.data.item }
+          } else {
+            handleStatusCodeError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
-          return rejectWithValue(error)
+          handleCatchError(error, dispatch)
+          return rejectWithValue(null)
         }
       },
       {
