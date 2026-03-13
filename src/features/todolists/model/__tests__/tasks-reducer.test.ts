@@ -1,8 +1,5 @@
 import { beforeEach, expect, test } from "vitest"
-import {
-  tasksSlice,
-  type TasksState
-} from "../tasks-slice.ts"
+import { tasksSlice, type TasksState } from "../tasks-slice.ts"
 import { createTodolistTC, deleteTodolistTC } from "../todolists-slice.ts"
 import { TaskPriority, TaskStatus } from "@/common/enums/enums.ts"
 
@@ -165,16 +162,15 @@ test("correct task should be deleted", () => {
 })
 
 test("correct task should be created at correct array", () => {
-
   const newTask = {
     id: "4",
-    title: 'juice',
+    title: "juice",
     status: TaskStatus.New,
-    todoListId: 'todolistId2'
+    todoListId: "todolistId2",
   }
   const action = {
     type: tasksSlice.actions.createTasksTC.fulfilled.type,
-    payload: newTask
+    payload: { task: newTask },
   }
 
   const endState = tasksSlice.reducer(startState, action)
@@ -187,12 +183,11 @@ test("correct task should be created at correct array", () => {
 })
 
 test("correct task should change its status", () => {
-
   const newTask = {
     id: "2",
-    title: 'juice',
+    title: "juice",
     status: TaskStatus.New,
-    todoListId: 'todolistId2'
+    todoListId: "todolistId2",
   }
 
   const action = {
@@ -208,27 +203,34 @@ test("correct task should change its status", () => {
 test("correct task should change its title", () => {
   const newTask = {
     id: "2",
-    title: 'coffee',
+    title: "coffee",
     status: TaskStatus.New,
-    todoListId: 'todolistId2'
+    todoListId: "todolistId2",
   }
+
   const action = {
     type: tasksSlice.actions.updateTaskTC.fulfilled.type,
-    payload: {task: newTask },
+    payload: { task: newTask },
   }
-  const endState = tasksSlice.reducer(
-    startState,
-    action
-  )
+  const endState = tasksSlice.reducer(startState, action)
 
   expect(endState.todolistId2[1].title).toBe("coffee")
   expect(endState.todolistId1[1].title).toBe("JS")
 })
 
 test("array should be created for new todolist", () => {
+  const newTodolist = {
+    id: "todolistId14",
+    title: "What to learn",
+    filter: "all",
+    order: 0,
+    addedDate: "",
+    entityStatus: "idle",
+  }
+
   const action = {
     type: createTodolistTC.fulfilled.type,
-    payload: {title: "New todolist"}
+    payload: { todolist: newTodolist },
   }
   const endState = tasksSlice.reducer(startState, action)
 
@@ -245,7 +247,7 @@ test("array should be created for new todolist", () => {
 test("property with todolistId should be deleted", () => {
   const action = {
     type: deleteTodolistTC.fulfilled.type,
-    payload: {id: "todolistId2"}
+    payload: { id: "todolistId2" },
   }
   const endState = tasksSlice.reducer(startState, action)
 

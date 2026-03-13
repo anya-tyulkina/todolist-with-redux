@@ -43,7 +43,7 @@ test("correct todolist should be created", () => {
 
   const action = {
     type: todolistsSlice.actions.createTodolistTC.fulfilled.type,
-    payload: newTodolist,
+    payload: {todolist: newTodolist},
   }
   const endState = todolistsSlice.reducer(startState, action)
 
