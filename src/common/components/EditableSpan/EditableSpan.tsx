@@ -4,14 +4,17 @@ import { type ChangeEvent, useState } from "react"
 type Props = {
   value: string
   onChange: (title: string) => void
+  disabled?: boolean
 }
 
-export const EditableSpan = ({ value, onChange }: Props) => {
+export const EditableSpan = ({ value, onChange, disabled }: Props) => {
   const [title, setTitle] = useState(value)
   const [isEditMode, setIsEditMode] = useState(false)
 
   const turnOnEditMode = () => {
-    setIsEditMode(true)
+    if(!disabled){
+      setIsEditMode(true)
+    }
   }
 
   const turnOffEditMode = () => {

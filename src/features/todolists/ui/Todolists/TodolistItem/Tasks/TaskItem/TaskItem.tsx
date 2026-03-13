@@ -1,23 +1,23 @@
-import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { useAppDispatch } from "@/common/hooks"
-import {
-  deleteTaskTC, updateTaskTC
-} from "@/features/todolists/model/tasks-slice.ts"
 import DeleteIcon from "@mui/icons-material/Delete"
 import Checkbox from "@mui/material/Checkbox"
 import IconButton from "@mui/material/IconButton"
 import ListItem from "@mui/material/ListItem"
 import type { ChangeEvent } from "react"
 import { getListItemSx } from "./TaskItem.styles"
-import type { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
 import { TaskStatus } from "@/common/enums"
+import { DomainTask } from "@/features/todolists/api"
+import { deleteTaskTC, updateTaskTC } from "@/features/todolists/model"
+import { EditableSpan } from "@/common/components"
+import type { RequestStatus } from "@/common/types"
 
 type Props = {
   task: DomainTask
   todolistId: string
+  todolistEntityStatus: RequestStatus
 }
 
-export const TaskItem = ({ task, todolistId }: Props) => {
+export const TaskItem = ({ task, todolistId, todolistEntityStatus }: Props) => {
   const dispatch = useAppDispatch()
 
   const deleteTask = () => {
@@ -38,10 +38,10 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   return (
     <ListItem sx={getListItemSx(checked)}>
       <div>
-        <Checkbox checked={checked} onChange={changeTaskStatus} />
-        <EditableSpan value={task.title} onChange={changeTaskTitle} />
+        <Checkbox checked={checked} onChange={changeTaskStatus} disabled={todolistEntityStatus === 'pending'} />
+        <EditableSpan value={task.title} onChange={changeTaskTitle} disabled={todolistEntityStatus === 'pending'} />
       </div>
-      <IconButton onClick={deleteTask}>
+      <IconButton onClick={deleteTask} disabled={todolistEntityStatus === 'pending'}>
         <DeleteIcon />
       </IconButton>
     </ListItem>

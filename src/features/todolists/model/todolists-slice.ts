@@ -1,10 +1,9 @@
-import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
-import { changeStatusAC } from "@/app/app-slice.ts"
+import { changeStatusAC } from "@/app/app-slice"
 import type { RequestStatus } from "@/common/types"
 import { ResultCode } from "@/common/enums"
-import { handleCatchError } from "@/common/utils/handleCatchError.ts"
-import { createAppSlice, handleStatusCodeError } from "@/common/utils"
+import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
 import { todolistsApi } from "../api/todolistsApi"
+import { Todolist } from "../api"
 
 export const todolistsSlice = createAppSlice({
   name: "todolists",
@@ -69,7 +68,7 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           dispatch(changeTodolistEntityStatusAC({ id: arg.id, status: "pending" }))
-          const res = await todolistsApi.deleteTodolist('arg.id')
+          const res = await todolistsApi.deleteTodolist(arg.id)
           if(res.data.resultCode === ResultCode.Success){
             dispatch(changeStatusAC({ status: "succeeded" }))
             return arg

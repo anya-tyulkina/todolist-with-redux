@@ -1,10 +1,10 @@
-import { createTodolistTC, deleteTodolistTC } from "./todolists-slice.ts"
-import type { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
-import { changeStatusAC } from "@/app/app-slice.ts"
-import type { RootState } from "@/app/store.ts"
+import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
+import { changeStatusAC } from "@/app/app-slice"
+import type { RootState } from "@/app/store"
 import { ResultCode } from "@/common/enums"
 import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
-import { tasksApi } from "../api/tasksApi.ts"
+import { tasksApi } from "../api/tasksApi"
+import { DomainTask, UpdateTaskModel } from "../api"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
