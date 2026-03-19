@@ -1,15 +1,17 @@
 import { selectThemeMode } from "@/app/app-slice"
 import { useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
+import { FormControlLabel } from "@mui/material"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
 import FormControl from "@mui/material/FormControl"
-import FormControlLabel from "@mui/material/FormControlLabel"
 import FormGroup from "@mui/material/FormGroup"
 import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
-import { type SubmitHandler, useForm } from "react-hook-form"
+import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { LoginInputs, loginSchema } from "../../model"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -18,10 +20,11 @@ export const Login = () => {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
-    reset,
-  } = useForm<LoginInputs>()
+    reset
+  } = useForm<LoginInputs>({ defaultValues: { email: "", password: "", rememberMe: false }, resolver: zodResolver(loginSchema) })
 
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
     console.log(data)
@@ -58,12 +61,7 @@ export const Login = () => {
               margin="normal"
               error={!!errors.email}
               helperText={errors.email?.message}
-              {...register("email", {
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "incorrect email",
-                },
-              })}
+              {...register("email")}
             />
 
             <TextField
@@ -72,10 +70,21 @@ export const Login = () => {
               margin="normal"
               error={!!errors.password}
               helperText={errors.password?.message}
-              {...register("password", { required: { value: true, message: "password is required" } })}
+              {...register("password")}
             />
 
-            <FormControlLabel label="Remember me" control={<Checkbox {...register("rememberMe")} />} />
+            <FormControlLabel
+              label="Remember me"
+              control={
+                <Controller
+                  name={"rememberMe"}
+                  control={control}
+                  render={({ field: {value, ...rest} }) => (
+                    <Checkbox {...rest} checked={value} />
+                  )}
+                />
+              }
+            />
             <Button type="submit" variant="contained" color="primary">
               Login
             </Button>
@@ -84,10 +93,4 @@ export const Login = () => {
       </FormControl>
     </Grid>
   )
-}
-
-type LoginInputs = {
-  email: string
-  password: string
-  rememberMe: boolean
 }

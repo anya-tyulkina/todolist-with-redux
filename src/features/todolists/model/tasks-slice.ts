@@ -5,6 +5,7 @@ import { ResultCode } from "@/common/enums"
 import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
 import { DomainTask, UpdateTaskModel } from "../api"
+import { domainTaskSchema } from "@/features/todolists/model/schemas/schemas.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -14,11 +15,16 @@ export const tasksSlice = createAppSlice({
   },
   reducers: (create) => ({
     fetchTasks: create.asyncThunk(
-      async (todolistId: string, { rejectWithValue }) => {
+      async (todolistId: string, { rejectWithValue, dispatch }) => {
         try {
+          dispatch(changeStatusAC({status: 'pending'}))
           const res = await tasksApi.getTasks(todolistId)
+          dispatch(changeStatusAC({status: 'succeeded'}))
+          //zod
+          domainTaskSchema.array().parse(res.data.items)
           return { tasks: res.data.items, todolistId }
         } catch (error) {
+          handleCatchError(error, dispatch)
           return rejectWithValue(error)
         }
       },
