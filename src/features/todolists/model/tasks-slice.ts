@@ -5,7 +5,12 @@ import { ResultCode } from "@/common/enums"
 import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
 import { DomainTask, UpdateTaskModel } from "../api"
-import { domainTaskSchema } from "@/features/todolists/model/schemas/schemas.ts"
+import {
+  domainTaskSchema,
+  responseCreateTasksSchema,
+  responseDeleteTasksSchema,
+  responseUpdateTasksSchema,
+} from "./schemas"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -17,9 +22,9 @@ export const tasksSlice = createAppSlice({
     fetchTasks: create.asyncThunk(
       async (todolistId: string, { rejectWithValue, dispatch }) => {
         try {
-          dispatch(changeStatusAC({status: 'pending'}))
+          dispatch(changeStatusAC({ status: "pending" }))
           const res = await tasksApi.getTasks(todolistId)
-          dispatch(changeStatusAC({status: 'succeeded'}))
+          dispatch(changeStatusAC({ status: "succeeded" }))
           //zod
           domainTaskSchema.array().parse(res.data.items)
           return { tasks: res.data.items, todolistId }
@@ -39,6 +44,7 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await tasksApi.createTask(args)
+          responseCreateTasksSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }
@@ -64,6 +70,8 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await tasksApi.deleteTask(args)
+          //zod
+          responseDeleteTasksSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return args
@@ -101,6 +109,8 @@ export const tasksSlice = createAppSlice({
 
           const model: DomainTask = { ...task, ...payload.domainModel }
           const res = await tasksApi.updateTask({ model, todolistId: payload.todolistId, id: payload.taskId })
+         //zod
+          responseUpdateTasksSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }

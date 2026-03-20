@@ -1,6 +1,6 @@
 import { TaskPriority, TaskStatus } from "@/common/enums/enums"
 import z from "zod/v4"
-import { domainTaskSchema } from "../model"
+import { domainTaskSchema } from "../model/schemas"
 
 export type DomainTask = z.infer<typeof domainTaskSchema>
 

@@ -19,16 +19,22 @@ export const Login = () => {
   const theme = getTheme(themeMode)
 
   const {
-    register,
     control,
     handleSubmit,
     formState: { errors },
-    reset
-  } = useForm<LoginInputs>({ defaultValues: { email: "", password: "", rememberMe: false }, resolver: zodResolver(loginSchema) })
+    reset,
+  } = useForm<LoginInputs>({
+    defaultValues: {rememberMe: false },
+    resolver: zodResolver(loginSchema),
+  })
 
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
     console.log(data)
-    reset()
+    reset({
+      email: "",
+      password: "",
+      rememberMe: false
+    })
   }
 
   return (
@@ -56,21 +62,34 @@ export const Login = () => {
         </FormLabel>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormGroup>
-            <TextField
-              label="Email"
-              margin="normal"
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              {...register("email")}
+            <Controller
+              name={"email"}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Email"
+                  margin="normal"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  {...field}
+                />
+              )}
             />
 
-            <TextField
-              type="password"
-              label="Password"
-              margin="normal"
-              error={!!errors.password}
-              helperText={errors.password?.message}
-              {...register("password")}
+
+            <Controller
+              name={"password"}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  type="password"
+                  label="Password"
+                  margin="normal"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  {...field}
+                />
+              )}
             />
 
             <FormControlLabel
@@ -79,9 +98,7 @@ export const Login = () => {
                 <Controller
                   name={"rememberMe"}
                   control={control}
-                  render={({ field: {value, ...rest} }) => (
-                    <Checkbox {...rest} checked={value} />
-                  )}
+                  render={({ field: { value, ...rest } }) => <Checkbox {...rest} checked={value} />}
                 />
               }
             />

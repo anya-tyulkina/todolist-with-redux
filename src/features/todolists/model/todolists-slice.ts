@@ -4,6 +4,13 @@ import { ResultCode } from "@/common/enums"
 import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
 import { todolistsApi } from "../api/todolistsApi"
 import { Todolist } from "../api"
+import {
+  responseCreateTodolistSchema,
+  responseDeleteTodolistSchema,
+  responseUpdateTodolistSchema,
+  todolistSchema,
+} from "./schemas"
+
 
 export const todolistsSlice = createAppSlice({
   name: "todolists",
@@ -18,11 +25,19 @@ export const todolistsSlice = createAppSlice({
         todolist.filter = action.payload.filter
       }
     }),
+    changeTodolistEntityStatusAC: create.reducer<{ id: string; status: RequestStatus }>((state, action) => {
+      const todolist = state.find((el) => el.id === action.payload.id)
+      if (todolist) {
+        todolist.entityStatus = action.payload.status
+      }
+    }),
     fetchTodolistTC: create.asyncThunk(
       async (_, { rejectWithValue, dispatch }) => {
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await todolistsApi.getTodolists()
+          //zod
+          todolistSchema.array().parse(res.data)
           dispatch(changeStatusAC({ status: "succeeded" }))
           return res.data
         } catch (error) {
@@ -41,6 +56,8 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await todolistsApi.changeTodolistTitle(arg)
+          //zod
+          responseUpdateTodolistSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success){
             dispatch(changeStatusAC({ status: "succeeded" }))
             return arg
@@ -69,6 +86,8 @@ export const todolistsSlice = createAppSlice({
           dispatch(changeStatusAC({ status: "pending" }))
           dispatch(changeTodolistEntityStatusAC({ id: arg.id, status: "pending" }))
           const res = await todolistsApi.deleteTodolist(arg.id)
+          //zod
+          responseDeleteTodolistSchema.parse(res.data)
           if(res.data.resultCode === ResultCode.Success){
             dispatch(changeStatusAC({ status: "succeeded" }))
             return arg
@@ -98,6 +117,8 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await todolistsApi.createTodolist(arg.title)
+          //zod
+          responseCreateTodolistSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return { todolist: res.data.data.item }
@@ -113,17 +134,10 @@ export const todolistsSlice = createAppSlice({
       {
         fulfilled: (state, action) => {
           state.unshift({ ...action.payload.todolist, filter: "all", entityStatus: "idle" })
-        },
-      },
-    ),
-
-    changeTodolistEntityStatusAC: create.reducer<{ id: string; status: RequestStatus }>((state, action) => {
-      const todolist = state.find((el) => el.id === action.payload.id)
-      if (todolist) {
-        todolist.entityStatus = action.payload.status
+        }
       }
-    }),
-  }),
+    )
+  })
 })
 
 export const {
