@@ -40,6 +40,7 @@ export const TaskItem = ({ task, todolistId, todolistEntityStatus }: Props) => {
       <div>
         <Checkbox checked={checked} onChange={changeTaskStatus} disabled={todolistEntityStatus === 'pending'} />
         <EditableSpan value={task.title} onChange={changeTaskTitle} disabled={todolistEntityStatus === 'pending'} />
+        <span style={{color: 'blue', marginLeft: '10px'}}>{new Date(task.addedDate).toLocaleDateString()}</span>
       </div>
       <IconButton onClick={deleteTask} disabled={todolistEntityStatus === 'pending'}>
         <DeleteIcon />
