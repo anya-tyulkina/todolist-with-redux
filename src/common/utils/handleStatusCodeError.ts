@@ -1,9 +1,12 @@
 import { changeStatusAC, setAppErrorAC } from "@/app/app-slice"
-import type { Dispatch } from "@reduxjs/toolkit"
 import type { BaseResponse } from "@/common/types"
+import type { Dispatch } from "@reduxjs/toolkit"
 
-export function handleStatusCodeError<T>(dispatch: Dispatch, data: BaseResponse<T>) {
+export const handleStatusCodeError = <T>(dispatch: Dispatch, data: BaseResponse<T>) => {
+  if (data.messages.length) {
+    dispatch(setAppErrorAC({ error: data.messages[0] }))
+  } else {
+    dispatch(setAppErrorAC({ error: "Some error occurred" }))
+  }
   dispatch(changeStatusAC({ status: "failed" }))
-  const error = data.messages.length ? data.messages[0] : "something error"
-  dispatch(setAppErrorAC({ error }))
 }

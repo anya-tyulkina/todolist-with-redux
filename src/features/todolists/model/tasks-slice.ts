@@ -5,12 +5,8 @@ import { ResultCode } from "@/common/enums"
 import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
 import { DomainTask, UpdateTaskModel } from "../api"
-import {
-  domainTaskSchema,
-  responseCreateTasksSchema,
-  responseDeleteTasksSchema,
-  responseUpdateTasksSchema,
-} from "./schemas"
+import { getTasksSchema, responseOperationTasksSchema } from "@/features/todolists/api/tasksApi.types.ts"
+import { defaultResponseSchema } from "@/common/types"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -26,7 +22,7 @@ export const tasksSlice = createAppSlice({
           const res = await tasksApi.getTasks(todolistId)
           dispatch(changeStatusAC({ status: "succeeded" }))
           //zod
-          domainTaskSchema.array().parse(res.data.items)
+          getTasksSchema.parse(res.data)
           return { tasks: res.data.items, todolistId }
         } catch (error) {
           handleCatchError(error, dispatch)
@@ -44,7 +40,7 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await tasksApi.createTask(args)
-          responseCreateTasksSchema.parse(res.data)
+          responseOperationTasksSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }
@@ -71,7 +67,7 @@ export const tasksSlice = createAppSlice({
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await tasksApi.deleteTask(args)
           //zod
-          responseDeleteTasksSchema.parse(res.data)
+          defaultResponseSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return args
@@ -110,7 +106,7 @@ export const tasksSlice = createAppSlice({
           const model: DomainTask = { ...task, ...payload.domainModel }
           const res = await tasksApi.updateTask({ model, todolistId: payload.todolistId, id: payload.taskId })
          //zod
-          responseUpdateTasksSchema.parse(res.data)
+          responseOperationTasksSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }

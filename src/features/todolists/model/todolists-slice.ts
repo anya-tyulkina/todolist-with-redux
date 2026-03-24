@@ -1,15 +1,10 @@
 import { changeStatusAC } from "@/app/app-slice"
-import type { RequestStatus } from "@/common/types"
+import { defaultResponseSchema, type RequestStatus } from "@/common/types"
 import { ResultCode } from "@/common/enums"
 import { createAppSlice, handleCatchError, handleStatusCodeError } from "@/common/utils"
 import { todolistsApi } from "../api/todolistsApi"
 import { Todolist } from "../api"
-import {
-  responseCreateTodolistSchema,
-  responseDeleteTodolistSchema,
-  responseUpdateTodolistSchema,
-  todolistSchema,
-} from "./schemas"
+import { responseOperationTodolistSchema, todolistSchema } from "@/features/todolists/api/todolistsApi.types.ts"
 
 
 export const todolistsSlice = createAppSlice({
@@ -57,7 +52,7 @@ export const todolistsSlice = createAppSlice({
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await todolistsApi.changeTodolistTitle(arg)
           //zod
-          responseUpdateTodolistSchema.parse(res.data)
+          defaultResponseSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success){
             dispatch(changeStatusAC({ status: "succeeded" }))
             return arg
@@ -87,7 +82,7 @@ export const todolistsSlice = createAppSlice({
           dispatch(changeTodolistEntityStatusAC({ id: arg.id, status: "pending" }))
           const res = await todolistsApi.deleteTodolist(arg.id)
           //zod
-          responseDeleteTodolistSchema.parse(res.data)
+          defaultResponseSchema.parse(res.data)
           if(res.data.resultCode === ResultCode.Success){
             dispatch(changeStatusAC({ status: "succeeded" }))
             return arg
@@ -118,7 +113,7 @@ export const todolistsSlice = createAppSlice({
           dispatch(changeStatusAC({ status: "pending" }))
           const res = await todolistsApi.createTodolist(arg.title)
           //zod
-          responseCreateTodolistSchema.parse(res.data)
+          responseOperationTodolistSchema.parse(res.data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(changeStatusAC({ status: "succeeded" }))
             return { todolist: res.data.data.item }
